@@ -1,0 +1,396 @@
+(function () {
+  var jQuery;
+  var siteurl = 'https://rankmyagent.com';
+
+  var rmajq = document.getElementById("rmajq");
+
+  if (rmajq !== null) {
+    return false;
+  }
+
+  if (!window.jQueryRma) {
+    var script = document.createElement("script");
+    script.id = "rmajq";
+    script.src = "https://code.jquery.com/jquery-3.6.0.min.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+    script.onload = jqLoaded;
+  } else {
+    jQuery = window.jQueryRma;
+    query();
+  }
+
+  function jqLoaded() {
+    jQuery = $.noConflict(true);
+    window.jQueryRma = jQuery;
+    query();
+  }
+
+  function query() {
+    var eq = 0;
+    jQuery(document).ready(function () {
+      var head = jQuery("head");
+
+      if (head.find(".rankmyagent-style").length === 0) {
+        var date = new Date();
+        head.append(
+          '<link href="' +
+          siteurl +
+          "/widgets/widgets.css?ver=" +
+          date.getTime() +
+          '" rel="stylesheet" type="text/css" class="rankmyagent-style">'
+        );
+      }
+      if (head.find(".rankmyagent-font").length === 0) {
+        head.append(
+          '<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet" type="text/css" class="rankmyagent-font">'
+        );
+      }
+
+      jQuery(".rankmyagent-widget")
+        .not(".rma-wag")
+        .each(function () {
+          if (!jQuery(this).attr("data-loaded")) {
+            eq++;
+            jQuery(this).attr("data-loaded", "1");
+            jQuery(this)[0].id = "rma-" + eq;
+            jQuery.ajax({
+              url: siteurl + "/widgets/widgets.php",
+              data: {
+                eq: eq,
+                agent: jQuery("#rma-" + eq).attr("data-agent"),
+                brokerage: jQuery("#rma-" + eq).attr("data-brokerage"),
+                type: jQuery("#rma-" + eq).attr("data-type"),
+                wide_version: jQuery("#rma-" + eq).hasClass(
+                  "rankmyagent-widget-wide-version"
+                ),
+                limit: jQuery("#rma-" + eq).attr("data-limit"),
+                random: jQuery("#rma-" + eq).attr("data-random"),
+                widget: jQuery("#rma-" + eq).attr("data-widget")
+              },
+              dataType: "jsonp",
+              success: function (response) {
+                eq = response.eq;
+                if (!response.error) {
+                  if (jQuery("#rma-" + eq).attr("data-agent")) {
+                    jQuery("#rma-" + eq).html(getAgentMarkup(response));
+                  } else if (jQuery("#rma-" + eq).attr("data-brokerage")) {
+                    if (
+                      jQuery("#rma-" + eq).attr("data-widget") ===
+                      "bluecircle" ||
+                      jQuery("#rma-" + eq).attr("data-widget") ===
+                      "whitecircle" ||
+                      jQuery("#rma-" + eq).attr("data-widget") ===
+                      "whitesquare" ||
+                      jQuery("#rma-" + eq).attr("data-widget") === "bluesquare"
+                    ) {
+                      jQuery("#rma-" + eq).html(
+                        getCircleWidgetMarkup(
+                          response,
+                          jQuery("#rma-" + eq).attr("data-widget")
+                        )
+                      );
+                    } else {
+                      jQuery("#rma-" + eq).html(getBrokerageMarkup(response));
+                    }
+                  }
+                } else {
+                  jQuery("#rma-" + eq).html(
+                    '<div class="error">' + response.error_message + "</div>"
+                  );
+                }
+              }
+            });
+          }
+        });
+    });
+  }
+
+  function getAgentMarkup(response) {
+    var html;
+    html = '<div class="header">';
+
+    html += '<div class="left">';
+    html += '<div class="widget-avatar-container">';
+    html += '<img src="' + response.agent.avatar + '">';
+    html += "</div>";
+    html += "</div>";
+
+    html += '<div class="right">';
+
+    html +=
+      '<h2><a target="_blank" href="' +
+      siteurl +
+      "/agent_reviews/" +
+      response.agent.id +
+      '">' +
+      response.agent.name +
+      "</a></h2>";
+
+    html += "<div>";
+
+    html += '<div class="rating">';
+    var iteration = 0;
+    for (; iteration < response.agent.stars; iteration++) {
+      html += "<span></span>";
+    }
+    iteration = 0;
+    for (; iteration < 5 - response.agent.stars; iteration++) {
+      html += '<span class="no-star"></span>';
+    }
+    html += "<label>" + response.agent.rating + "/5 Overall Rating</label>";
+    html += "</div>";
+
+    html += '<div class="ok">';
+    html += '<img src="' + siteurl + '/widgets/images/ok_icon.png">';
+    html += "<span>" + response.agent.percents + "%</span>";
+    html += "</div>";
+
+    html +=
+      '<div class="verified"><a target="_blank" href="' +
+      siteurl +
+      "/agent_reviews/" +
+      response.agent.id +
+      '"><i class="icon-home"></i>Verified by RankMyAgent.com</a></div>';
+
+    html += "</div>";
+
+    html += "</div>";
+
+    html += '<div class="clear"></div>';
+
+    html += "</div>";
+
+    if (response.reviews) {
+      html += "<section>";
+      html += "<ul>";
+      jQuery.each(response.reviews, function (i, review) {
+        html += "<li>";
+        html += '<div class="user-info">';
+        html += "<h3>" + review.author + "</h3>";
+        html += '<div class="small-rating">';
+        var iteration = 0;
+        for (; iteration < review.stars; iteration++) {
+          html += "<span></span>";
+        }
+        iteration = 0;
+        for (; iteration < 5 - review.stars; iteration++) {
+          html += '<span class="no-star"></span>';
+        }
+        html += "</div>";
+        html +=
+          '<div class="reviewed">Reviewed on ' + review.longdate + "</div>";
+
+        html += "</div>";
+        html += '<div class="description">' + review.content;
+        html +=
+          "<strong>" +
+          review.agent.firstname +
+          " helped us " +
+          review.helped_to +
+          " in " +
+          review.helped_on +
+          "</strong>";
+        html += "</div>";
+        html += "</li>";
+      });
+      html += "</ul>";
+      html += "</section>";
+    }
+
+    return html;
+  }
+
+  function getBrokerageMarkup(response) {
+    var html = '<div class="header">';
+    html += '<div class="left">';
+    if (response.brokerage.logo) {
+      html += '<img src="' + response.brokerage.logo + '" onerror="defaultImage(this)">';
+    } else {
+      html += "&nbsp;";
+    }
+    html += "</div>";
+    html += '<div class="right">';
+    html += "<h2>";
+    if (response.brokerage.brokerage_public_profile === "1") {
+      html +=
+        '<a class="rma-brokerage-name" target="_blank" href="' +
+        response.brokerage.brokerate_public_profile_link +
+        '">' +
+        response.brokerage.name +
+        "</a>";
+    } else {
+      html += response.brokerage.name;
+    }
+    html += "</h2>";
+    if (response.brokerage.address != null)
+      html += "<address>" + response.brokerage.address + "</address>";
+    html +=
+      '<div class="verified"><a target="_blank" href="' +
+      siteurl +
+      '"><i class="icon-home"></i>Verified by RankMyAgent.com</a></div>';
+    html += "</div>";
+    html += '<div class="clear"></div>';
+
+    html += "</div>";
+
+    if (response.stars) {
+      console.log('ke rendame' + response.stars);
+      html += '<section style="margin-bottom:20px !important;">';
+      html +=
+        '<div class="rating" style="float:left;margin-right:20px!important;">';
+      
+      for (var i = 0; i < response.stars; i++) {
+        html += "<span></span>";
+      }
+      for (var i = 0; i < 5 - response.stars; i++) {
+        html += '<span class="no-star"></span>';
+      }
+      html += "<br/>";
+      html +=
+        '<div style="font-size:15px;color: #FECF68;padding-top:1px !important;">' +
+        response.brok_rev +
+        " Verified Reviews</div>";
+      html += "</div>";
+      html +=
+        '<div style="float:right;text-align:right;"><span style="color: #95ce97; font-size: 26px;line-height:1;">' +
+        response.brok_avg;
+      html +=
+        '</span><br> <span style="color: #999999; font-size: 15px;line-height:1;">out of 5</span>';
+      html += "</div>";
+      html += '<div class="clear"></div></section>';
+    }
+
+    if (response.reviews) {
+      html += "<section>";
+      html += "<ul>";
+      jQuery.each(response.reviews, function (i, review) {
+        html += "<li>";
+        html += '<div class="user-info">';
+        if (typeof review.agent.profile_link != "undefined") {
+          html +=
+            '<a href="' +
+            review.agent.profile_link +
+            '" target="_blank" style="text-decoration: underline;"><img src="' +
+            review.agent.avatar +
+            '"></a>';
+        } else {
+          html += '<img src="' + review.agent.avatar + '">';
+        }
+        html += "<h3>";
+        if (typeof review.agent.profile_link != "undefined") {
+          html +=
+            '<a href="' +
+            review.agent.profile_link +
+            '" target="_blank" style="text-decoration: underline;">' +
+            review.agent.firstname +
+            " " +
+            review.agent.lastname +
+            "</a> <span>" +
+            review.agent.role +
+            "</span>";
+        } else {
+          html +=
+            review.agent.firstname +
+            " " +
+            review.agent.lastname +
+            " <span>" +
+            review.agent.role +
+            "</span>";
+        }
+        html += "</h3>";
+        html +=
+          '<div class="result"><i class="icon-ok"></i> ' +
+          review.percents +
+          "%</div>";
+        html += "</div>";
+        html += '<div class="description">';
+        html +=
+          '<div class="reviewed">Reviewed on <span>' +
+          review.longdate +
+          "</span></div>";
+        html += review.content;
+        html +=
+          "<strong>" +
+          review.agent.firstname +
+          " helped us " +
+          review.helped_to +
+          " in " +
+          review.helped_on +
+          "</strong>";
+        html += "</div>";
+        html += "</li>";
+      });
+      html += "</ul>";
+      html += "</section>";
+    }
+
+    if (response.brokerage.brokerage_public_profile === "1") {
+      html += "<div>";
+      html +=
+        '<a style="float:right;" href="' +
+        response.brokerage.brokerate_public_profile_link +
+        '" target="_blank">See more reviews</a>';
+      html += "</div>";
+    }
+
+    html += '<div class="clear"></div>';
+    return html;
+  }
+  function defaultImage(passElement) {
+    passElement.onerror = "";
+    passElement.src = siteurl + "/images/no-images.png";
+    passElement.width = "100";
+    return true;
+  }
+  function getCircleWidgetMarkup(response, type) {
+    var html = "";
+    if (response.brokerage.brokerage_public_profile === "1") {
+      html +=
+        '<a style="text-decoration:none;" target="_blank" href="' +
+        response.brokerage.brokerate_public_profile_link +
+        '">';
+    }
+    html += '<div class="rma-circle rma-widget-bg">';
+    html += '<div class="rma-star-5-points rma-star1"></div>';
+    html += '<div class="rma-star-5-points rma-star2"></div>';
+    html += '<div class="rma-star-5-points rma-star3"></div>';
+    html += '<div class="rma-star-5-points rma-star4"></div>';
+    html += '<div class="rma-star-5-points rma-star5"></div>';
+
+    html += '<div class="rma-thumbs">';
+    html +=
+      '<img width="26" src="' +
+      siteurl +
+      "/widgets/images/thumbs-up-icon-black-hi-" +
+      type +
+      '.png">&nbsp;' +
+      response.brokerage.percents +
+      "%";
+    html += "</div>";
+
+    html += '<div class="rma-reviews-number">';
+    html += response.brokerage.num_reviews + " REVIEWS";
+    html += "</div>";
+
+    html += '<div class="rma-verified-by">';
+    html += "Verified by";
+    html += "</div>";
+
+    html += '<div class="rma-logo">';
+    html +=
+      '<img src="' +
+      siteurl +
+      "/widgets/images/logo-" +
+      type +
+      '.svg" width="144">';
+    html += "</div>";
+
+    html += "</div>";
+    if (response.brokerage.brokerage_public_profile === "1") {
+      html += "</a>";
+    }
+    html += '<div class="clear"></div>';
+
+    return html;
+  }
+})();
