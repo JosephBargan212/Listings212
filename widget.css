@@ -1,0 +1,145 @@
+﻿.stat_box {
+    height: 240px;
+    padding: 0;
+    background-color: #f8f8f8;
+    position: relative;
+}
+
+.stat_container {
+    width: 100%;
+    height: 80px;
+    padding: 0 2rem;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+}
+
+    .stat_container h4 {
+        font-size: 1.5rem;
+        margin-bottom: 0px;
+    }
+
+.stat_box_title {
+    height: 70px;
+    padding: 0;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    border-bottom: none;
+    background-color: #DC1D2E;
+    padding: 5px;
+}
+
+.stat_title {
+    font-size: 1.2rem;
+    color: #fff;
+    text-align: center;
+}
+
+.stat_caption {
+    width: 100%;
+    bottom: 20px;
+    text-align: center;
+}
+
+h1.stat_main {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #263238;
+    margin: 0;
+    line-height: 115px;
+}
+
+.stat_content {
+    display: flex;
+    background-color: #f8f8f8;
+    height: 100%;
+    padding: 1rem 0 2rem;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
+}
+
+.stat_box .item_alt {
+    background: #f3f3f3;
+}
+
+.stat_box {
+    height: 240px;
+    padding: 0;
+    background-color: #f8f8f8;
+    position: relative;
+}
+
+div#market_info {
+    margin-top: 2em;
+}
+
+h2.widgettitle {
+    font-weight: 900;
+}
+
+.stat_title .dropdown-menu {
+    background-color: #fff;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.stat_title .dropdown-item {
+    color: #000;
+    display: block;
+    padding: 7px 20px;
+}
+
+.stat_title .dropdown-toggle:before {
+    display: inline-block;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.5em solid;
+    border-right: 0.5em solid transparent;
+    border-bottom: 0;
+    border-left: 0.5em solid transparent;
+}
+
+.stat_box h5 {
+    font-size: 1.25em;
+    text-align: center;
+}
+
+.stat_box .stat_avgchange {
+    font-weight: bold;
+}
+
+.stat_box .neg_chng {
+    color: #ff0000;
+}
+
+.stat_box .pos_chng {
+    color: #00db00;
+}
+
+#market_info .carousel-control .glyphicon-chevron-right, #market_info .carousel-control .glyphicon-chevron-left {
+    display: block;
+    background: none;
+    color: #e4e4e4;
+    height: 30px;
+    width: 30px;
+    padding: 0px;
+}
+
+@media(max-width: 767px) {
+    h1.stat_main {
+        font-size: 3rem;
+    }
+
+    .stat_container h4 {
+        font-size: 1.4rem;
+    }
+}
